@@ -1,6 +1,6 @@
 -- Задание 2
 -- Название и продолжительность самого длительного трека.
-SELECT name, to_char(duration / 60, '90') || ':' || to_char(duration % 60, '00') AS duration
+SELECT name, to_char(duration / 60, '90') || ':' || to_char(duration % 60, '00') AS duration_minutes
 FROM songs AS s 
 where s.duration = (
 	SELECT MAX(s2.duration)
@@ -24,9 +24,14 @@ WHERE NOT name LIKE '% %';
 -- Название треков, которые содержат слово «мой» или «my».
 SELECT name 
 FROM Songs
-WHERE LOWER(name) LIKE '%my%' 
-OR LOWER(name) LIKE '%мой%';
-
+WHERE LOWER(name) ILIKE '% my %'
+OR LOWER(name) ILIKE 'my %'
+OR LOWER(name) ILIKE '% my'
+OR LOWER(name) ILIKE 'my'
+OR LOWER(name) ILIKE '% мой %'
+OR LOWER(name) ILIKE 'мой %'
+OR LOWER(name) ILIKE '% мой'
+OR LOWER(name) ILIKE 'мой';
 
 -- Задание 3
 -- Количество исполнителей в каждом жанре.
@@ -37,11 +42,11 @@ GROUP BY st.name
 ORDER BY st.name;
 
 -- Количество треков, вошедших в альбомы 2019–2020 годов.
-SELECT a.name AS album_name, to_char(a.year, '9999') AS release_year, COUNT(s.song_id) AS songs_count
+SELECT COUNT(s.song_id) AS songs_count
 FROM albums AS a
 INNER JOIN songs AS s ON s.album_id = a.album_id 
-WHERE a.year BETWEEN 2019 AND 2020
-GROUP BY a.name, a.year;
+WHERE a.year BETWEEN 2019 AND 2020;
+
 
 -- Средняя продолжительность треков по каждому альбому.
 SELECT a.name AS album_name, ROUND(AVG(s.duration),0) AS average_song_duration_seconds
@@ -113,4 +118,3 @@ WHERE a1.song_count = (
 	      FROM albums AS a2 
 	      INNER JOIN songs AS s2 ON s2.album_id = a2.album_id
 	      GROUP BY a2.name) AS a3);
-

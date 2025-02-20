@@ -3,7 +3,8 @@ values
 ('Akon'),
 ('Little Simz (Simbiatu Abisola Abiola Ajikawo)'),
 ('Paul McCartney'),
-('The Rolling Stones');
+('The Rolling Stones'),
+('Testing My');
 
 INSERT INTO styles (name)
 VALUES
@@ -16,22 +17,23 @@ VALUES
 
 INSERT INTO albums (name, year)
 VALUES
-('El Negreeto', '2019'),
-('Akonda', '2020'),
-('Grey Area', '2019'),
-('Egypt Station', '2018'),
-('McCartney III', '2020'),
-('Blue and Lonesome', '2016');
+('El Negreeto', 2019),
+('Akonda', 2020),
+('Grey Area', 2019),
+('Egypt Station', 2018),
+('McCartney III', 2020),
+('Blue and Lonesome', 2016),
+('Test for My', 2015);
 
 INSERT INTO songs (name, duration, album_id)
 VALUES
 ('Te quiero amar', 226, 1),
-('Báilame lento', 242, 1),
-('Cómo no', 193, 1),
+('Bailame lento', 242, 1),
+('Como no', 193, 1),
 ('Boom, Boom', 152, 1),
 ('Dile', 192, 1),
 ('Innocente', 204, 1),
-('Sólo Tú', 221, 1),
+('Solo Tu', 221, 1),
 ('Baila conmigo', 231, 1),
 ('Welcome To Africa', 187, 2),
 ('Scammers', 130, 2),
@@ -86,12 +88,23 @@ VALUES
 ('All of Your Love', 286, 6),
 ('I Gotta Go', 206, 6),
 ('Everybody Knows About My Good Thing', 270, 6),
-('Ride ‘Em On Down', 168, 6),
+('Ride �Em On Down', 168, 6),
 ('Hate to See You Go', 200, 6),
 ('Hoo Doo Blues', 156, 6),
 ('Little Rain', 212, 6),
 ('Just Like I Treat You', 204, 6),
-('I Cant Quit You Baby', 313, 6);
+('I Cant Quit You Baby', 313, 6),
+('my own', 130, 7),
+('own my', 123, 7),
+('my', 124, 7),
+('oh my god', 165, 7),
+('myself', 127, 7),
+('by myself', 165, 7),
+('bemy self', 154, 7),
+('myself by', 143, 7),
+('by myself by', 138, 7),
+('beemy', 128, 7),
+('premyne', 197, 7);
 
 INSERT INTO musician_style
 VALUES
@@ -101,7 +114,8 @@ VALUES
 (2, 4),
 (3, 1),
 (3, 2),
-(4, 1);
+(4, 1),
+(5, 1);
 
 INSERT INTO musician_album
 VALUES
@@ -110,7 +124,8 @@ VALUES
 (2, 3),
 (3, 4),
 (3, 5),
-(4, 6);
+(4, 6),
+(5, 7);
 
 INSERT INTO collections (name, year)
 VALUES 
