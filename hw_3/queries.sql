@@ -22,6 +22,7 @@ FROM musicians
 WHERE NOT name LIKE '% %';
 
 -- Название треков, которые содержат слово «мой» или «my».
+-- первый вариант
 SELECT name 
 FROM Songs
 WHERE LOWER(name) ILIKE '% my %'
@@ -32,6 +33,9 @@ OR LOWER(name) ILIKE '% мой %'
 OR LOWER(name) ILIKE 'мой %'
 OR LOWER(name) ILIKE '% мой'
 OR LOWER(name) ILIKE 'мой';
+-- второй вариань
+SELECT * FROM songs as s 
+WHERE s.name ~* '\ymy\y'
 
 -- Задание 3
 -- Количество исполнителей в каждом жанре.
