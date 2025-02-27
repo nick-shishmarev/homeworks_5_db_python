@@ -1,4 +1,4 @@
-class Client():
+class Client:
     def __init__(
             self,
             first_name: str,
