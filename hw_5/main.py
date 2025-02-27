@@ -2,12 +2,6 @@ import psycopg2
 import configparser
 import logging
 
-# import json
-# from datetime import datetime as dt
-#
-# import requests
-# from tqdm import tqdm
-
 from classes import Client
 
 
@@ -84,16 +78,22 @@ def add_client(connector, client):
 
 def find_clients(connector, cl_id=None, f_name=None, l_name=None, e_mail=None):
     cond_lst = []
+    value_lst = []
     result = []
     if cl_id:
-        cond_lst.append(f"client_id={cl_id}")
+        cond_lst.append("client_id=%s")
+        value_lst.append(cl_id)
     elif e_mail:
-        cond_lst.append(f"e_mail='{e_mail}'")
+        cond_lst.append("e_mail=%s")
+        value_lst.append(e_mail)
     else:
         if f_name:
-            cond_lst.append(f"first_name='{f_name}'")
+            cond_lst.append(f"first_name=%s")
+            value_lst.append(f_name)
         if l_name:
-            cond_lst.append(f"last_name='{l_name}'")
+            cond_lst.append(f"last_name=%s")
+            value_lst.append(l_name)
+
     cond = " AND ".join(cond_lst)
     if cond:
         query = "SELECT * FROM clients WHERE " + cond + ";"
@@ -102,7 +102,7 @@ def find_clients(connector, cl_id=None, f_name=None, l_name=None, e_mail=None):
 
     with connector.cursor() as cur:
         try:
-            cur.execute(query)
+            cur.execute(query, value_lst)
         except psycopg2.errors.Error as e:
             logging.error(e)
             return False, e
@@ -131,14 +131,12 @@ def add_phone_number(connector, client_id, phone_number):
         return False, f"Ошибка поиска клиента {client_id = }"
 
     phone_number = phone_number.replace(" ", "")
-    query = (f"INSERT INTO phones (phone_number, client_id)\n"
-             f"VALUES\n"
-             f"('{phone_number}', {client.client_id});")
+    query = "INSERT INTO phones (phone_number, client_id) VALUES (%s, %s)"
     logging.debug(f"add_phone_number\n{query}")
 
     with connector.cursor() as cur:
         try:
-            cur.execute(query)
+            cur.execute(query, (phone_number, client.client_id))
         except psycopg2.errors.Error as e:
             connector.rollback()
             return False, e
@@ -160,25 +158,28 @@ def update_client(connector, client_id, first_name=None, last_name=None, e_mail=
 
     text = ""
     sets = []
+    values = []
     if first_name:
         client.first_name = first_name.capitalize()
-        sets.append(f"first_name='{client.first_name}'")
+        sets.append(f"first_name=%s")
+        values.append(client.first_name)
     if last_name:
         client.last_name = last_name.capitalize()
-        sets.append(f"last_name='{client.last_name}'")
+        sets.append(f"last_name=%s")
+        values.append(client.last_name)
     if e_mail:
         client.e_mail = e_mail.lower()
-        sets.append(f"e_mail='{client.e_mail}'")
+        sets.append(f"e_mail=%s")
+        values.append(client.e_mail)
     query_sets = ', '.join(sets)
     if query_sets:
-        query = (f"UPDATE clients\n"
-                 f"SET {query_sets}\n"
-                 f"WHERE client_id={client_id};")
+        query = f"UPDATE clients SET {query_sets} WHERE client_id=%s;"
+        values.append(client_id)
 
         logging.debug(f"update_client\n{query}")
         with connector.cursor() as cur:
             try:
-                cur.execute(query)
+                cur.execute(query, values)
             except psycopg2.errors.Error as e:
                 connector.rollback()
                 return False, e
@@ -201,24 +202,22 @@ def update_client(connector, client_id, first_name=None, last_name=None, e_mail=
 
 def del_phone_number(connector, cl_id, phone_number):
     phone_number = phone_number.replace(" ", "")
-    query = (f"SELECT * FROM phones\n"
-             f"WHERE client_id={cl_id} AND phone_number='{phone_number}';")
+    query = "SELECT * FROM phones WHERE client_id=%s AND phone_number=%s;"
     with connector.cursor() as cur:
         try:
-            cur.execute(query)
+            cur.execute(query, (cl_id, phone_number))
         except psycopg2.errors.Error as e:
-            logging.error(f"del_phone_number\n{e}")
+            logging.error(f"{e}")
             return False, e
 
         if not cur.fetchall():
             return False, f"Not found"
 
-    query = (f"DELETE FROM phones\n"
-             f"WHERE client_id={cl_id} AND phone_number='{phone_number}';")
+    query = "DELETE FROM phones WHERE client_id=%s AND phone_number=%s;"
 
     with connector.cursor() as cur:
         try:
-            cur.execute(query)
+            cur.execute(query, (cl_id, phone_number))
         except psycopg2.errors.Error as e:
             connector.rollback()
             return False, e
@@ -239,21 +238,19 @@ def del_client(connector, cl_id):
         logging.error(clients[0])
         return False, f"Ошибка поиска клиента {cl_id = }"
 
-    query = (f"DELETE FROM phones\n"
-             f"WHERE client_id={cl_id};")
+    query = "DELETE FROM phones WHERE client_id=%s;"
     with connector.cursor() as cur:
         try:
-            cur.execute(query)
+            cur.execute(query, (cl_id,))
         except psycopg2.errors.Error as e:
             connector.rollback()
             return False, e
         connector.commit()
 
-    query = (f"DELETE FROM clients\n"
-             f"WHERE client_id={cl_id};")
+    query = (f"DELETE FROM clients WHERE client_id=%s;")
     with connector.cursor() as cur:
         try:
-            cur.execute(query)
+            cur.execute(query, (cl_id,))
         except psycopg2.errors.Error as e:
             connector.rollback()
             return False, e
@@ -274,7 +271,7 @@ def main():
     database_name = config['db_params']['db_name']
     database_user = config['db_params']['db_user']
     database_password = config['db_params']['db_pwd']
-    logging.info(f"Starting client_service database: {database_name} user_name: {database_user}")
+    logging.info(f"Start client_service database: {database_name} user_name: {database_user}")
 
     conn = psycopg2.connect(database=database_name, user=database_user, password=database_password)
 
@@ -533,7 +530,7 @@ def main():
         print(clients)
 
     conn.close()
-
+    logging.info(f"Stop client_service database: {database_name} user_name: {database_user}")
 
 logging.basicConfig(
     level=logging.INFO,
