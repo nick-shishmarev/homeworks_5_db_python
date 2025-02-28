@@ -247,7 +247,7 @@ def del_client(connector, cl_id):
             return False, e
         connector.commit()
 
-    query = (f"DELETE FROM clients WHERE client_id=%s;")
+    query = "DELETE FROM clients WHERE client_id=%s;"
     with connector.cursor() as cur:
         try:
             cur.execute(query, (cl_id,))
@@ -531,6 +531,7 @@ def main():
 
     conn.close()
     logging.info(f"Stop client_service database: {database_name} user_name: {database_user}")
+
 
 logging.basicConfig(
     level=logging.INFO,
